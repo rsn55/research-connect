@@ -65,9 +65,9 @@ router.get('/', function(req, res) {
 });
 
 //app.use('/users', users);
-
+var labFile = require('./api/lab.js');
 app.use('/api', router);
-
+app.use('/lab', labFile);
 /*******************************/
 //BEGIN NON-DEFAULT CODE
 /*******************************/
@@ -276,6 +276,8 @@ app.get('/getOpportunitiesListing', function (req, res) {
 
         });
 });
+
+//http://localhost:3001/user/register
 
 //get all the labs
 app.get('/getLabs', function (req, res) {
