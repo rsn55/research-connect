@@ -27,8 +27,12 @@ if (fs.existsSync('./S3Config2.json')) {
 //     corsKey = JSON.parse(fs.readFileSync('CorsKey.json', 'utf8'));
 //     corsKey = corsKey.key;
 // }
-
+///////////////////////////////////////////////
 let labRoute = require('./api/lab.js');
+let labAdminRoute = require('./api/LabAdministrator.js');
+let opportunityRoute = require('./api/Opportunity.js');
+let undergradRoute = require('./api/Undergrads.js');
+
 
 //create instances
 const app = express();
@@ -67,8 +71,11 @@ router.get('/', function (req, res) {
 });
 
 //app.use('/users', users);
-
+//////////////////////////////////////////
 app.use('/lab', labRoute);
+app.use('',labAdminRoute);
+app.use('',opportunityRoute);
+app.use('',undergradRoute);/**/
 
 
 /*******************************/
@@ -94,7 +101,7 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 /**Begin SCHEMAS*/
-let Schema = mongoose.Schema;
+/*let Schema = mongoose.Schema;
 
 const undergradSchema = new Schema({
     firstName: {type: String, required: true},
@@ -165,7 +172,7 @@ opportunitySchema.pre('validate', function (next) {
 });
 let opportunityModel = mongoose.model('Opportunities', opportunitySchema, 'Opportunities'); //a mongoose model = a Collection on mlab/mongodb
 
-//EXAMPLE CODE AT BOTTOM OF server.js
+//EXAMPLE CODE AT BOTTOM OF server.js*/
 
 /** Begin ADD TO DATABASE */
 
@@ -670,22 +677,6 @@ app.post('/deleteLabAdmin', function (req, res) {
     });
 });
 
-app.post('/deleteLab', function (req, res) {
-    var id = req.body.id;
-    console.log("delete lab");
-    console.log(id);
-
-    labModel.findByIdAndRemove(id, function (err, lab) {
-        // We'll create a simple object to send back with a message and the id of the document that was removed
-        // You can really do this however you want, though.
-        let response = {
-            message: "Lab successfully deleted",
-            id: id
-        };
-        res.status(200).send(response);
-
-    });
-});
 
 
 function base64ArrayBuffer(arrayBuffer) {
