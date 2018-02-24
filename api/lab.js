@@ -3,7 +3,7 @@
 const port = '3001/lab';
 
 const mongoose = require('mongoose');
-gi
+
 //Set up default mongoose connection
 const mongoDB = 'mongodb://research-connect:connectresearchers4cornell@ds251245.mlab.com:51245/research-connect';
 mongoose.connect(mongoDB, {
@@ -28,4 +28,5 @@ const labSchema = new Schema({
     opportunities: [Schema.Types.ObjectId]
 });
 let labModel = mongoose.model('Labs', labSchema, 'Labs'); //a mongoose model = a Collection on mlab/mongodb
+
 

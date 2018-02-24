@@ -1,0 +1,41 @@
+
+
+
+
+
+
+const opportunitySchema = new Schema({
+    creatorNetId: {type: String, required: [true, "Must have NetId for the user creating the opportunity"]},
+    labPage: {type: String, default: "This lab does not have a website", required: false},
+    title: {type: String, default: "TBD", required: [true, 'Must have title']}, //required
+    projectDescription: {type: String, default: "TBD"}, //required, add min length that you see fit
+    undergradTasks: {type: String, default: "TBD"},  //what the undergrad would be doing, can be null
+    qualifications: {type: String, default: "TBD"}, //can be null/empty
+    supervisor: {type: String, default: "TBD"}, //can be null
+    spots: {type: Number, required: false, min: 0, default: -1},   //-1 if no limit, number of people they're willing to take, -1 indicates no cap to # of spots
+    startSeason: {type: String, enum: ["Summer", "Fall", "Winter", "Spring"]}, //null if start asap, string b/c it will prob be something like Fall 2018
+    startYear: {type: Number, min: new Date().getFullYear()},
+    yearsAllowed: {
+        type: [String],
+        enum: ["freshman", "sophomore", "junior", "senior"],
+        default: ["freshman", "sophomore", "junior", "senior"]
+    },  //do they accept freshman, sophomores, juniors, and/or seniors
+    applications: {type: [Schema.Types.Mixed], default: []},
+    questions: Schema.Types.Mixed,    //can be empty
+    requiredClasses: {type: [String], default: []}, //can be empty
+    minGPA: {type: Number, min: 0, max: 4.3, default: 0}, //0 if no minimum gpa required
+    minHours: {type: Number, min: 0, max: 500, default: 6}, //can be null, indicating no minimum
+    maxHours: {type: Number, min: 0, max: 500, default: 9}, //can be null, indicating no max
+    opens: {type: Date, default: new Date()},   //if no date is sent use new Date()
+    closes: {type: Date, default: null},  //null if rolling
+    areas: {type: [String], default: []} //required, area(s) of research (molecular bio, bioengineering, electrical engineering, computer science, etc.)
+    // howToStoreObjects: Schema.Types.Mixed
+});
+opportunitySchema.pre('validate', function (next) {
+    if (this.maxHours < this.minHours) {
+        next(new Error('Min hours must be greater than or equal to max hours.'));
+    } else {
+        next();
+    }
+});
+let opportunityModel = mongoose.model('Opportunities', opportunitySchema, 'Opportunities'); //a mongoose model = a Collection on mlab/mongodb
