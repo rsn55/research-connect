@@ -386,12 +386,12 @@ app.post('/createOpportunity', function (req, res) {
         areas: data.areas
     });
 
-<<<<<<< HEAD
+
     //
-=======
+
     labModel.find();
 
->>>>>>> e5d719fed55bb536d6c648c83fa5670a88da3683
+
     opportunity.save(function (err) {
         if (err) {
             res.status(500).send({"errors": err.errors});
