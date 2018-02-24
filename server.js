@@ -22,11 +22,13 @@ if (fs.existsSync('./S3Config2.json')) {
     s3 = new AWS.S3();
 }
 
-let corsKey = null;
-if (fs.existsSync('./CorsKey.json')) {
-    corsKey = JSON.parse(fs.readFileSync('CorsKey.json', 'utf8'));
-    corsKey = corsKey.key;
-}
+// let corsKey = null;
+// if (fs.existsSync('./CorsKey.json')) {
+//     corsKey = JSON.parse(fs.readFileSync('CorsKey.json', 'utf8'));
+//     corsKey = corsKey.key;
+// }
+
+let labRoute = require('./api/lab.js');
 
 //create instances
 const app = express();
@@ -66,7 +68,8 @@ router.get('/', function (req, res) {
 
 //app.use('/users', users);
 
-app.use('/api', router);
+app.use('/lab', labRoute);
+
 
 /*******************************/
 //BEGIN NON-DEFAULT CODE
@@ -103,14 +106,14 @@ const undergradSchema = new Schema({
 });
 let undergradModel = mongoose.model('Undergrads', undergradSchema, 'Undergrads'); //a mongoose model = a Collection on mlab/mongodb
 
-const labSchema = new Schema({
-    name: {type: String, required: true},
-    labPage: {type: String, default: ""},
-    labDescription: {type: String, default: ""},
-    labAdmins: {type: [String], default: []},
-    opportunities: [Schema.Types.ObjectId]
-});
-let labModel = mongoose.model('Labs', labSchema, 'Labs'); //a mongoose model = a Collection on mlab/mongodb
+// const labSchema = new Schema({
+//     name: {type: String, required: true},
+//     labPage: {type: String, default: ""},
+//     labDescription: {type: String, default: ""},
+//     labAdmins: {type: [String], default: []},
+//     opportunities: [Schema.Types.ObjectId]
+// });
+// let labModel = mongoose.model('Labs', labSchema, 'Labs'); //a mongoose model = a Collection on mlab/mongodb
 
 
 const labAdministratorSchema = new Schema({
