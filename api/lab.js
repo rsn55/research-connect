@@ -1,6 +1,7 @@
 ///Lab endpoint
+let express = require('express');
+let router = express.Router();
 
-const port = '3001/lab';
 
 const mongoose = require('mongoose');
 
@@ -9,6 +10,8 @@ const mongoDB = 'mongodb://research-connect:connectresearchers4cornell@ds251245.
 mongoose.connect(mongoDB, {
     useMongoClient: true
 });
+
+module.exports = router;
 
 //Get the default connection
 const db = mongoose.connection;
@@ -30,3 +33,14 @@ const labSchema = new Schema({
 let labModel = mongoose.model('Labs', labSchema, 'Labs'); //a mongoose model = a Collection on mlab/mongodb
 
 
+router.get('/get/all', function (req, res) {
+    labModel.find({}, function (err, labs) {
+        if (err) {
+            res.send(err);
+            //handle the error appropriately
+            return; //instead of putting an else
+        }
+        res.send(labs);
+
+    });
+});
