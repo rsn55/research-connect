@@ -268,6 +268,12 @@ app.get('/messages/:opportunityId', function (req, res) {
 
 /**
  * Send an email to notify the student of their status change
+ * Body:
+ * {opportunityId: ...,
+ * labAdminNetId: ...,
+ * undergradNetId: ...,
+ * message: ...
+ * }
  */
 app.post('/messages/send', function (req, res) {
     let oppId = req.body.opportunityId;
