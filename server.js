@@ -1058,7 +1058,7 @@ app.use(function (req, res, next) {
 module.exports = app;
 const host = process.env.HOST || '0.0.0.0';
 //starts the server and listens for requests
-app.listen(port, host, function () {
+app.listen(port, function () {
     debug(`api running on port ${port}`);
 });
 
