@@ -37,7 +37,7 @@ const router = express.Router();
 
 //set our port to either a predetermined port number if you have set
 //it up, or 3001
-const port = process.env.PORT || 3008;
+const port = process.env.PORT || 8000;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -1056,7 +1056,7 @@ app.use(function (req, res, next) {
 });
 
 module.exports = app;
-const host = '127.0.0.1' || '0.0.0.0';
+const host = process.env.HOST || '0.0.0.0';
 //starts the server and listens for requests
 app.listen(port, host, function () {
     debug(`api running on port ${port}`);
