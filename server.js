@@ -506,7 +506,7 @@ function gradYearToString(gradYear) {
     return "freshman";
 }
 
-app.post('/getOpportunitiesListing', function (req, res) {
+app.post('/__getOpportunitiesListing', function (req, res) {
 
     // if (req.body.corsKey != corsKey) {
     //     res.status(403).send("Access forbidden");
