@@ -1056,11 +1056,11 @@ app.use(function (req, res, next) {
 });
 
 module.exports = app;
-const host = process.env.HOST || '0.0.0.0';
+const host = process.env.HOST || '127.0.0.1';
 //starts the server and listens for requests
 app.listen(port, host, function () {
     debug(`api running on port ${port}`);
-});//
+});
 
 
 //Example code to create an instance of a model (in this case we're creating an opportunity)
