@@ -1090,21 +1090,25 @@ function base64ArrayBuffer(arrayBuffer) {
     return base64
 }
 
-app.post('/storeResume', function (req, res) {
-    if (!req.files)
-        return res.status(400).send('No files were uploaded.');
+app.get('/resume/:key', function(req,res){
     let params = {
         Bucket: "research-connect-student-files",
-        Key: "1517452061886"
+        Key: req.params.key
     };
+    //1517452061886
     s3.getObject(params, function (err, data) {
         if (err) debug(err, err.stack); // an error occurred
         else {
             let baseString = base64ArrayBuffer(data.Body);
-            // res.send('<embed width="100%" height="100%" src=data:application/pdf;base64,' + baseString + ' />');
+            res.send('<embed width="100%" height="100%" src=data:application/pdf;base64,' + baseString + ' />');
         }
-        // successful response
     });
+});
+
+app.post('/storeResume', function (req, res) {
+    if (!req.files)
+        return res.status(400).send('No files were uploaded.');
+
     // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
     let resume = req.files.resume;
     //TODO change Key param to name of student plus date.now
@@ -1113,7 +1117,6 @@ app.post('/storeResume', function (req, res) {
         Key: Date.now().toString(),
         Body: req.files.resume.data
     };
-    debug("yay!");
     s3.upload(uploadParams, function (err, data) {
         if (err) {
             debug("Error", err);
