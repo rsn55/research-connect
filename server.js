@@ -118,6 +118,7 @@ const mongoose = require('mongoose');
 
 //Set up default mongoose connection
 const mongoDB = process.env.MONGODB;
+debug(mongoDB);
 mongoose.connect(mongoDB, {
     useMongoClient: true
 });
