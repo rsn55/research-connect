@@ -357,8 +357,8 @@ app.post('/getOpportunity', function (req, res) {
             }
             for (let i = 0; i < labs.length; i++) {
                 let currentLab = labs[i];
-                for (let j = 0; j < currentLab.opportunities.length; j++){
-                    if (currentLab.opportunities[j].toString() === req.body.id){
+                for (let j = 0; j < currentLab.opportunities.length; j++) {
+                    if (currentLab.opportunities[j].toString() === req.body.id) {
                         opportunity.labPage = currentLab.labPage;
                         opportunity.labDescription = currentLab.labDescription;
                         opportunity.labName = currentLab.name;
@@ -1128,14 +1128,19 @@ function base64ArrayBuffer(arrayBuffer) {
     return base64
 }
 
-app.get('/resume/:id', function (req, res){
+app.get('/resume/:id', function (req, res) {
     let params = {
         Bucket: "research-connect-student-files",
         Key: req.params.id
     };
     s3.getObject(params, function (err, data) {
-        if (err) debug(err, err.stack); // an error occurred
-        else {
+        if (err) {
+            debug(err, err.stack);
+            res.status(503).send("File could not be found");
+        }
+         // an error occurred
+        else
+        {
             let baseString = base64ArrayBuffer(data.Body);
             // return res.send('<embed width="100%" height="100%" src=data:application/pdf;base64,' + baseString + ' />');
             return res.send(baseString);

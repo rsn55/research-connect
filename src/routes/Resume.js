@@ -7,7 +7,8 @@ class Resume extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            resume: <p>Resume is loading...</p>
+            resume: <p>Resume is loading...</p>,
+            error: false
         };
     }
 
@@ -18,16 +19,26 @@ class Resume extends Component {
                     resume: response.data
                 });
             })
-            .catch(function (error) {
+            .catch((error) => {
+                this.setState({
+                    error: error.response.data
+                });
                 console.log(error);
             });
     }
 
     render() {
+        let message;
+        if (this.state.error){
+            message = <p style="align: center"> {this.state.error} </p>;
+        }
+        else {
+            message = <embed style={{height: "100%", width: "100%"}} src={"data:application/pdf;base64," + this.state.resume }/>
+        }
 
         return (
             <div style={{height: "100%", width: "100%"}}>
-                <embed style={{height: "100%", width: "100%"}} src={"data:application/pdf;base64," + this.state.resume }/>
+                {message}
             </div>
         );
     }
