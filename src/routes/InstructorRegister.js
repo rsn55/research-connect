@@ -36,7 +36,7 @@ toggleNewLab() {
 
 loadOpportunitiesFromServer() {
 
-  axios.get('http://localhost:3001/getLabs')
+  axios.get('http://localhost:3001/lab/get/all')
     .then(res => {
       console.log("RESULT IS",res.data);
       this.setState({ data: res.data });

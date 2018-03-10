@@ -25,7 +25,7 @@ if (fs.existsSync('./S3Config2.json')) {
 // let corsKey = null;
 // if (fs.existsSync('./CorsKey.json')) {
 //     corsKey = JSON.parse(fs.readFileSync('CorsKey.json', 'utf8'));
-//     corsKey = corsKey.key;
+//     corsKey = corsKey.key;|A|≤|B|  and |B|≤|C|  then |A|≤|C|
 // }
 ///////////////////////////////////////////////
 let labRoute = require('./api/lab.js');
@@ -326,6 +326,7 @@ app.post('/getOpportunitiesListing', function (req, res) {
     });
 
 });
+/*
 
 //get all the labs
 app.get('/getLabs', function (req, res) {
@@ -355,6 +356,7 @@ function getLab(id, res) {
         return lab;
     });
 }
+*/
 
 
 /**
@@ -368,7 +370,7 @@ app.post('/sendFormData', function (req, res) {
     //res is used to send the result, which the front end can parse
     res.send("hello");
 });
-
+/*
 app.post('/createOpportunity', function (req, res) {
     //req is json containing the stuff that was sent if there was anything
     var data = req.body;
@@ -397,9 +399,9 @@ app.post('/createOpportunity', function (req, res) {
     });
 
 
-    //
+    //*/
 
-    labModel.find();
+ /*   labModel.find();
 
 
     opportunity.save(function (err) {
@@ -412,7 +414,7 @@ app.post('/createOpportunity', function (req, res) {
         // Now the opportunity is saved in the Opportunities collection on mlab!
     });
 });
-
+*//*
 app.post('/createUndergrad', function (req, res) {
     //req is json containing the stuff that was sent if there was anything
     var data = req.body;
@@ -566,7 +568,7 @@ app.post('/updateUndergrad', function (req, res) {
         }
     });
 });
-
+*//*
 app.post('/updateLab', function (req, res) {
     let id = req.body.id;
     labModel.findById(id, function (err, lab) {
@@ -639,7 +641,7 @@ app.post('/deleteOpportunity', function (req, res) {
 
     });
 });
-/**End ENDPOINTS */
+/!**End ENDPOINTS *!/
 
 
 app.post('/deleteUndergrad', function (req, res) {
@@ -678,7 +680,7 @@ app.post('/deleteLabAdmin', function (req, res) {
 });
 
 
-
+*/
 function base64ArrayBuffer(arrayBuffer) {
     var base64 = ''
     var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
@@ -791,14 +793,14 @@ app.get('/buttonClicked',function(req,res){
     console.log('hello');
 });
 
-
+/*
 app.get('/createUndergrad', function(req, res){
     //labModel.find({labAdmin: {$elemMatch: {netID:''}}});
    // var l  = req.body.creatorNetId
     labModel.find({ labAdmins: req.body.creatorNetId }), function( err, createUndergrad){
         res.send(createUndergrad);
     }
-});
+});*/
 
 
 

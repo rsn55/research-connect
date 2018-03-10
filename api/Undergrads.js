@@ -36,7 +36,7 @@ let undergradModel = mongoose.model('Undergrads', undergradSchema, 'Undergrads')
 
 
 
-router.post('/createUndergrad', function (req, res) {
+router.post('/create', function (req, res) {
     //req is json containing the stuff that was sent if there was anything
     var data = req.body;
 
@@ -64,7 +64,7 @@ router.post('/createUndergrad', function (req, res) {
 });
 
 
-router.post('/updateUndergrad', function (req, res) {
+router.post('/update', function (req, res) {
     let id = req.body.id;
     console.log(id);
     undergradModel.findById(id, function (err, undergrad) {
@@ -94,7 +94,7 @@ router.post('/updateUndergrad', function (req, res) {
 });
 
 
-router.post('/deleteUndergrad', function (req, res) {
+router.post('/delete', function (req, res) {
     var id = req.body.id;
     console.log("delete undergrad");
     console.log(id);

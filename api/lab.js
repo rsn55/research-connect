@@ -45,8 +45,11 @@ router.get('/get/all', function (req, res) {
     });
 });
 
+//change names
+//
+
 //get one lab by id
-router.get('/getLab', function (req, res) {
+router.get('/get', function (req, res) {
     var response = getLab(req.body.id, res);
     res.send(response);
 });
@@ -63,7 +66,7 @@ function getLab(id, res) {
 
 
 //create a lab
-router.post('/createLab', function (req, res) {
+router.post('/create', function (req, res) {
     //req is json containing the stuff that was sent if there was anything
     var data = req.body;
     console.log(data);
@@ -90,7 +93,7 @@ router.post('/createLab', function (req, res) {
 });
 
 //delete a lab
-router.post('/deleteLab', function (req, res) {
+router.post('/delete', function (req, res) {
     var id = req.body.id;
     console.log("delete lab");
     console.log(id);
@@ -108,7 +111,7 @@ router.post('/deleteLab', function (req, res) {
 });
 
 
-router.post('/updateLab', function (req, res) {
+router.post('/update', function (req, res) {
     let id = req.body.id;
     labModel.findById(id, function (err, lab) {
         if (err) {

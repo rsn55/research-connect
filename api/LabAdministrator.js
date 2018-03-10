@@ -36,7 +36,7 @@ const labAdministratorSchema = new Schema({
 let labAdministratorModel = mongoose.model('LabAdministrators', labAdministratorSchema, 'LabAdministrators');
 
 //get the lab admin for a given
-router.post('/getLabAdmin', function (req, res) {
+router.post('/get', function (req, res) {
     var response = getLabAdmin(req.body.id);
     res.send(response);
 });
@@ -52,7 +52,7 @@ function getLabAdmin(id, res) {
     });
 }
 
-router.post('/updateLabAdmin', function (req, res) {
+router.post('/update', function (req, res) {
     let id = req.body.id;
     labAdministratorModel.findById(id, function (err, labAdmin) {
         if (err) {
@@ -82,7 +82,7 @@ router.post('/updateLabAdmin', function (req, res) {
 
 
 
-router.post('/deleteLabAdmin', function (req, res) {
+router.post('/delete', function (req, res) {
     var id = req.body.id;
     console.log("delete lab admin");
     console.log(id);

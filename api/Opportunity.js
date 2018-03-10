@@ -65,7 +65,7 @@ let opportunityModel = mongoose.model('Opportunities', opportunitySchema, 'Oppor
 
 
 //get a Opportunity
-router.post('/getOpportunity', function (req, res) {
+router.post('/get', function (req, res) {
     getOpportunity(req.body.id, res);
 });
 
@@ -82,7 +82,7 @@ function getOpportunity(id, res) {
 }
 
 
-router.post('/updateOpportunity', function (req, res) {
+router.post('/update', function (req, res) {
     let id = req.body.id;
     opportunityModel.findById(id, function (err, opportunity) {
         if (err) {
@@ -123,7 +123,7 @@ router.post('/updateOpportunity', function (req, res) {
 });
 
 
-router.post('/deleteOpportunity', function (req, res) {
+router.post('/delete', function (req, res) {
     var id = req.body.id;
     console.log("delete opportuinty");
     console.log(id);
