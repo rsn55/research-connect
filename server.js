@@ -1128,6 +1128,10 @@ app.post('/storeResume', function (req, res) {
     });
 });
 
+app.post('/testResume', function (req, res) {
+    console.log("If the below is null, it's not working");
+    console.log(req.files);
+});
 
 app.post('/storeApplication', function (req, res) {
     opportunityModel.findById(req.body.opportunityId, function (err, opportunity) {

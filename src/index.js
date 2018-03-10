@@ -24,6 +24,7 @@ ReactDOM.render(
             <Route exact path='/newopp' component = {CreateOpportunityForm} />
             <Route exact path='/instructorRegister' component = {InstructorRegister} />
             <Route exact path='/professorView' component = {ProfessorView} />
+            <Route path = '/resume/:id' />
             <Route path='/' component = {Error} />
         </Switch>
     </BrowserRouter>
