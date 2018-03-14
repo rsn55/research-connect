@@ -58,13 +58,13 @@ class Opportunities extends Component {
 
 				<div className="opp-container">
 
-					<div className="row">
-						<div className="column column-100 search-div-container">
-							<div className="search-div">
-								<input type="text" name="search" placeholder="Search keywords (e.g. psychology, machine learning, Social Media Lab)"/>
-							</div>
-						</div>
-					</div>
+					{/*<div className="row">*/}
+						{/*<div className="column column-100 search-div-container">*/}
+							{/*<div className="search-div">*/}
+								{/*<input type="text" name="search" placeholder="Search keywords (e.g. psychology, machine learning, Social Media Lab)"/>*/}
+							{/*</div>*/}
+						{/*</div>*/}
+					{/*</div>*/}
 
 					<div className="row">
 						<div className="column column-20">
