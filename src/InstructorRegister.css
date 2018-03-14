@@ -7,6 +7,7 @@
 .instructor-reg-form{
     margin: 20px;
     width:40%;
+    margin-top: 100px;
     margin-left: 30%;
     background-color: #f6f6f6;
     text-align: center;
@@ -18,6 +19,7 @@
   padding: 0 1.5rem;
 
 }
+
 .instructor-reg-form .button-small-clear{
   font-size: .8rem;
   height: 2.8rem;
@@ -88,7 +90,7 @@
 
 .instructor-reg-form .button-small-clear{
     border-color: #b31b1b;
-        color:#b31b1b;;
+    color:#b31b1b;;
 }
 .instructor-reg-form .button-small-clear:focus{
     border-color: #b31b1b;
@@ -119,4 +121,16 @@
 }
 .active{
   background-color: #dee0e5;
+}
+.existing-or-create .left-button{
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.existing-or-create .right-button{
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+.existing-or-create .button-small-clear:hover{
+  background-color: #c6c9ce;
+  border-color: #c6c9ce;
 }

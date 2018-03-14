@@ -1,7 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 import onClickOutside from "react-onclickoutside";
-
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import '../App.css';
 import '../InstructorRegister.css';
 import Autosuggester from '../components/Autosuggest';
@@ -111,9 +112,9 @@ render() {
 
   return (
     <div>
-    <div className="header"></div>
+    <Navbar/>
     <div className=" instructor-reg-form" >
-    <h3>Registration</h3>
+    <h3>Faculty Registration</h3>
     <form
           id='register'
           action='/createLabAdmin'
@@ -143,9 +144,9 @@ render() {
 
     {!this.state.newLab ? <div>
       <div className="existing-or-create">
-      <input type="button" className="button no-click button-small" value="Find Existing Lab"/>
-      <span className="or">OR </span>
-      <input type="button" className="button-small-clear" value="Add New Lab" onClick={this.toggleNewLab.bind(this)}/>
+      <input type="button" className="button left-button no-click button-small" value="Find Existing Lab"/>
+
+      <input type="button" className="right-button button-small-clear" value="Add New Lab" onClick={this.toggleNewLab.bind(this)}/>
       </div>
 
       <Autosuggester updateLab={this.handleUpdateLab.bind(this)} showDropdown={this.state.showDropdown}
@@ -156,9 +157,9 @@ render() {
 
       : <div>
       <div className="existing-or-create">
-      <input type="button" className="button-small-clear"  value="Find Existing Lab" onClick={this.toggleNewLab.bind(this)}/>
-      <span className="or">OR </span>
-      <input type="button" className="no-click button button-small" value="Add New Lab" />
+      <input type="button" className="left-button button-small-clear"  value="Find Existing Lab" onClick={this.toggleNewLab.bind(this)}/>
+
+      <input type="button" className="right-button no-click button button-small" value="Add New Lab" />
       </div>
 
       <input type="text" name="labName" id="labName" placeholder="Lab Name" value={this.name}
@@ -180,6 +181,7 @@ render() {
     </form>
 
     </div>
+    <Footer/>
     </div>
   );
 }

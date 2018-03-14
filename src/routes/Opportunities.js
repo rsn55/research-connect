@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
 import axios from 'axios';
-import logo from '../logo.svg';
 import '../Opportunities.css';
 import '../index.css';
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer';
+import logo from '../images/vectorlogo.png';
 import OpportunityBox from '../components/OpportunityBox';
 import YearSelect from '../components/YearSelect'
 import MajorSelect from '../components/MajorSelect'
@@ -52,7 +54,7 @@ class Opportunities extends Component {
 		return (
 			<div>
 
-				<div className="header"></div>
+				<Navbar/>
 
 				<div className="opp-container">
 
@@ -89,13 +91,13 @@ class Opportunities extends Component {
 						<div className="column column-70">
 							<div className="opp-list-container">
 								<OpportunityBox filteredOptions = {this.state}
-								url='/__getOpportunitiesListing' />
+								url='/getOpportunitiesListing' />
 							</div>
 						</div>
 					</div>
 
 				</div>
-
+				<Footer/>
 			</div>
 
 		);
