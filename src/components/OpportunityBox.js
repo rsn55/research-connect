@@ -13,7 +13,6 @@ class OpportunityBox extends Component {
 		axios.post(this.props.url, {netId: "rsn55"})	//TODO redux
 			.then(res => {
 				this.setState({ data: res.data });
-				console.log(res.data);
 			})
 	}
 
