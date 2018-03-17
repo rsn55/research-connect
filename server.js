@@ -1139,7 +1139,8 @@ app.post('/deleteLab', function (req, res) {
             id: id
         };
         res.status(200).send(response);
-
+    });
+});
 
 function base64ArrayBuffer(arrayBuffer) {
     var base64 = ''
