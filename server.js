@@ -98,12 +98,16 @@ router.get('/', function (req, res) {
     res.json({message: 'API Initialized!'});
 });
 
+var labRouter = require('./api/lab.js');
+var labAdminRouter = require('./api/Labadministrator.js');
+var labRouter = require('./api/lab.js');
+var OpportunityRouter = require('./api/opportunity.js');
+var undergradeRouter = require('./api/Undergrads.js');
+
 app.use('/api', router);
-//app.use('/users', users);
-//////////////////////////////////////////
-app.use('/lab', labRoute);
-app.use('',labAdminRoute);
-app.use('',opportunityRoute);
+app.use('/lab', labRouter);
+app.use('/abAdministrator',labAdminRouter);
+app.use('/opportunity',OpportunityRouter);
 app.use('',undergradRoute);/**/
 
 
