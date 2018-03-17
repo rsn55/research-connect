@@ -4,6 +4,7 @@
 'use strict';
 
 //import dependencies
+require('dotenv').config({path: 'info.env'});
 const async = require('async');
 const express = require('express');
 const supportsColor = require('supports-color');
@@ -66,13 +67,7 @@ app.use(function (req, res, next) {
 // https://github.com/sendgrid/sendgrid-nodejs
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const msg = {
-    to: 'ag946@cornell.edu',
-    from: 'ayeshagrocks@gmail.com',
-    subject: 'Sending with SendGrid is Fun',
-    text: 'and easy to do anywhere, even with Node.js',
-    html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-};
+//TODO new api keyh
 //More powerful example
 /**
  {
@@ -115,8 +110,8 @@ app.use('/api', router);
 //Require Mongoose
 const mongoose = require('mongoose');
 
+const mongoDB = process.env.MONGODB;
 //Set up default mongoose connection
-const mongoDB = 'mongodb://research-connect:connectresearchers4cornell@ds251245.mlab.com:51245/research-connect';
 mongoose.connect(mongoDB, {
     useMongoClient: true
 });
@@ -126,7 +121,9 @@ const db = mongoose.connection;
 
 //Bind connection to error event (to get notification of connection errors)
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
+db.once('open', function () {
+    debug("connected to mongo");
+});
 /**Begin SCHEMAS*/
 let Schema = mongoose.Schema;
 
@@ -139,7 +136,8 @@ const undergradSchema = new Schema({
     minor: {type: String},
     gpa: {type: Number, min: 0, max: 4.3},
     netId: {type: String, required: true},
-    courses: {type: [String]}
+    courses: {type: [String]},
+    skills: {type: [String]}
 });
 
 let undergradModel = mongoose.model('Undergrads', undergradSchema, 'Undergrads'); //a mongoose model = a Collection on mlab/mongodb
@@ -149,14 +147,14 @@ const labSchema = new Schema({
     labPage: {type: String, default: ""},
     labDescription: {type: String, default: ""},
     labAdmins: {type: [String], default: []},
-    opportunities: [Schema.Types.ObjectId]
+    opportunities: [{type: Schema.Types.ObjectId, ref: "Opportunities"}]
 });
 let labModel = mongoose.model('Labs', labSchema, 'Labs'); //a mongoose model = a Collection on mlab/mongodb
 
 
 const labAdministratorSchema = new Schema({
     role: {type: String, enum: ["pi", "postdoc", "grad", "undergrad"], required: true},
-    labId: {type: Schema.Types.ObjectId, required: true},
+    labId: {type: Schema.Types.ObjectId, required: true, ref: "Labs"},
     netId: {type: String, required: true},
     firstName: {type: String, required: true},
     lastName: {type: String, required: true},
@@ -187,11 +185,11 @@ const opportunitySchema = new Schema({
     },
     messages: {
         type: Schema.Types.Mixed, default: {
-            "accept": 'Hi {studentFirstName}, I am pleased to inform you that our lab will accept you for the opportunity "{opportunityTitle}". Please email me at {yourEmail} to find out more about when you will start. \nSincerely, {yourFirstName} {yourLastName}',
-            "reject": 'Hi {studentFirstName}, I regret to inform you that our lab will not be able to accept you for the ' +
-            ' "{opportunityTitle}" position this time. Please consider applying in the future. Respectfully, ' +
-            '{yourFirstName} {yourLastName}”.',
-            "interview": 'Hi {studentFirstName}, We reviewed your application and would love to learn more about you. Please email {yourEmail} with times in the next seven days that work for you for an interview regarding the opportunity "{opportunityTitle}". Sincerely, {yourFirstName} {yourLastName}'
+            "accept": 'Hi {studentFirstName}, \nI am pleased to inform you that our lab will accept you for the opportunity "{opportunityTitle}". Please email me at {yourEmail} to find out more about when you will start. \n\nSincerely, \n{yourFirstName} {yourLastName}',
+            "reject": 'Hi {studentFirstName}, \nI regret to inform you that our lab will not be able to accept you for the ' +
+            ' "{opportunityTitle}" position this time. Please consider applying in the future. \n\nRespectfully, ' +
+            '\n{yourFirstName} {yourLastName}”.',
+            "interview": 'Hi {studentFirstName}, \nWe reviewed your application and would love to learn more about you. Please email {yourEmail} with times in the next seven days that work for you for an interview regarding the opportunity "{opportunityTitle}". \n\nSincerely, \n{yourFirstName} {yourLastName}'
         }
     },
     applications: {type: [Schema.Types.Mixed], default: []},
@@ -203,7 +201,9 @@ const opportunitySchema = new Schema({
     opens: {type: Date, default: new Date()},   //if no date is sent use new Date()
     closes: {type: Date, default: null},  //null if rolling
     areas: {type: [String], default: []}, //required, area(s) of research (molecular bio, bioengineering, electrical engineering, computer science, etc.)
-    prereqsMatch: {type: Boolean, default: false}
+    prereqsMatch: {type: Boolean, default: false},
+    labDescription: {type: String, required: false},
+    labName: {type: String, required: false}
 });
 opportunitySchema.pre('validate', function (next) {
     if (this.maxHours < this.minHours) {
@@ -216,10 +216,25 @@ let opportunityModel = mongoose.model('Opportunities', opportunitySchema, 'Oppor
 
 //EXAMPLE CODE AT BOTTOM OF server.js
 
+/** Begin ADD TO DATABASE */
+
+
+/** End TO DATABASE */
+
+/** Begin SEARCHING THE DATABASE */
+
+
+
+/**End SEARCHING THE DATABASE */
+
 /** End MONGODB AND MONGOOSE SETUP */
 
 
 /**Begin ENDPOINTS */
+
+function replaceAll(str, find, replace) {
+    return str.replace(new RegExp(find, 'g'), replace);
+}
 
 /**
  * A method to populate fields. Feel free to change it as need be.
@@ -228,11 +243,11 @@ app.get('/populate', function (req, res) {
     opportunityModel.find({}, function (err, opps) {
         for (let i = 0; i < opps.length; i++) {
             opps[i]["messages"] = {
-                "accept": 'Hi {studentFirstName}, I am pleased to inform you that our lab will accept you for the opportunity "{opportunity title}". Please email me at {yourEmail} to find out more about when you will start. \nSincerely, {yourFirstName} {yourLastName}',
-                "reject": 'Hi {studentFirstName}, I regret to inform you that our lab will not be able to accept you for the ' +
-                ' "{opportunityTitle}" position this time. Please consider applying in the future. Respectfully, ' +
-                '{yourFirstName} {yourLastName}”.',
-                "interview": 'Hi {studentFirstName}, We reviewed your application and would love to learn more about you. Please email {yourEmail} with times in the next seven days that work for you for an interview. Sincerely, {yourFirstName} {yourLastName}'
+                "accept": 'Hi {studentFirstName}, \nI am pleased to inform you that our lab will accept you for the opportunity "{opportunityTitle}". Please email me at {yourEmail} to find out more about when you will start. \n\nSincerely, \n{yourFirstName} {yourLastName}',
+                "reject": 'Hi {studentFirstName}, \nI regret to inform you that our lab will not be able to accept you for the ' +
+                ' "{opportunityTitle}" position this time. Please consider applying in the future. \n\nRespectfully, ' +
+                '\n{yourFirstName} {yourLastName}”.',
+                "interview": 'Hi {studentFirstName}, \nWe reviewed your application and would love to learn more about you. Please email {yourEmail} with times in the next seven days that work for you for an interview regarding the opportunity "{opportunityTitle}". \n\nSincerely, \n{yourFirstName} {yourLastName}'
             };
             opps[i].save(function (err) {
                 debug(err);
@@ -267,12 +282,20 @@ app.get('/messages/:opportunityId', function (req, res) {
 
 /**
  * Send an email to notify the student of their status change
+ * Body of request: {
+ *  opportunityId: xxx,
+ *  labAdminNetId: xxx,
+ *  undergradNetId: xxx,
+ *  message: xxx,
+ *  status: "accept" | "reject" | "interviewing"
+ * }
  */
 app.post('/messages/send', function (req, res) {
     let oppId = req.body.opportunityId;
     let profId = req.body.labAdminNetId;
     let ugradNetId = req.body.undergradNetId;
     let message = req.body.message;
+    let status = req.body.status;
     /**
      *  *  Values we can replace:
      *  {studentFirstName}, {studentLastName} --> the first or last name of the student they just clicked accept/reject/interview for
@@ -282,44 +305,39 @@ app.post('/messages/send', function (req, res) {
      */
 
     undergradModel.findOne({netId: ugradNetId}, function (err, ugradInfo) {
-        message = message.replace("{studentFirstName}", ugradInfo.firstName);
-        message = message.replace("{studentLastName}", ugradInfo.lastName);
         labAdministratorModel.findOne({netId: profId}, function (err, prof) {
-            message = message.replace("{yourFirstName}", prof.firstName);
-            message = message.replace("{yourLastName}", prof.lastName);
-            message = message.replace("{yourEmail}", prof.netId + "@cornell.edu");
             opportunityModel.findById(oppId, function (err, opportunity) {
-                message = message.replace("{opportunityTitle}", opportunity.title);
-                // let msg = {
-                //     to: ugradNetId + "@cornell.edu",
-                //     from: 'CornellDTITest@gmail.com',
-                //     subject: "Research Connect Application Update for " + opportunity.title,
-                //     text: message,
-                // };
-
-                let msg = { //TODO Change the "from" email to our domain name using zoho mail
-                    personalizations: [
-                        {
-                            to: [
-                                {
-                                    "email": ugradNetId + "@cornell.edu",
-                                    "name": ugradInfo.firstName
-                                }
-                            ],
-                            subject: "Research Connect Application Update for " + opportunity.title
-                        }
-                    ],
-                    content: [{
-                        type: "text/plain",
-                        content: message
-                    }],
-                    from: {
-                        email: "CornellDTITest@gmail.com",
-                        name: "Research Connect"
-                    },
+                for (let i = 0; i < opportunity.applications.length; i++) {
+                    if (opportunity.applications[i].undergradNetId === ugradNetId) {
+                        opportunity.applications[i].status = status;
+                        break;
+                    }
+                }
+                let temp = opportunity.messages;
+                temp[status] = message;
+                opportunity.messages = temp;
+                opportunity.markModified("messages");
+                opportunity.markModified("applications");
+                opportunity.save(function (err, todo) {
+                    if (err) {
+                        debug(err);
+                    }
+                });
+                message = replaceAll(message, "{studentFirstName}", ugradInfo.firstName);
+                message = replaceAll(message, "{studentLastName}", ugradInfo.lastName);
+                message = replaceAll(message, "{yourFirstName}", prof.firstName);
+                message = replaceAll(message, "{yourLastName}", prof.lastName);
+                message = replaceAll(message, "{yourEmail}", prof.netId + "@cornell.edu");
+                message = replaceAll(message, "{opportunityTitle}", opportunity.title);
+                let msg = {
+                    to: ugradNetId + "@cornell.edu",
+                    from: 'CornellDTITest@gmail.com',
+                    subject: "Research Connect Application Update for \"" + opportunity.title + "\"",
+                    text: message,
+                    html: replaceAll(message, "\n", "<br />")
                 };
-
-                //TODO: send email here with message var and subject var to ugradNetId + "@cornell.edu".
+                //TODO Change the "from" email to our domain name using zoho mail
+                sgMail.send(msg);
                 res.status(200).end();
             })
         })
@@ -332,19 +350,49 @@ app.post('/messages/send', function (req, res) {
  res.send("hello");
  });*/
 
+
+//gets the opportunity given its id
 app.post('/getOpportunity', function (req, res) {
-    getOpportunity(req.body.id, res);
+    opportunityModel.findById(req.body.id).lean().exec(function (err, opportunity) {
+        if (err) {
+            debug(err);
+            res.send(err);
+        }
+        labModel.find({}, function (err2, labs) {
+            if (err2) {
+                debug(err);
+                res.send(err);
+                return;
+            }
+            let labAdmins = [];
+            for (let i = 0; i < labs.length; i++) {
+                let currentLab = labs[i];
+                for (let j = 0; j < currentLab.opportunities.length; j++) {
+                    if (currentLab.opportunities[j].toString() === req.body.id) {
+                        opportunity.labPage = currentLab.labPage;
+                        opportunity.labDescription = currentLab.labDescription;
+                        opportunity.labName = currentLab.name;
+                        labAdmins = currentLab.labAdmins;
+                    }
+                }
+            }
+            labAdministratorModel.findOne(
+                {$and: [
+                    {netId: {$in: labAdmins}},
+                    {role: "pi"}
+                    ]
+                },
+                function (err, labAdmin) {
+                    debug("hi");
+                    debug(labAdmin);
+                    opportunity.pi = labAdmin.firstName + " " + labAdmin.lastName;
+                    res.send(opportunity);
+                });
+        });
+    });
 });
 
 function getOpportunity(id, res) {
-    opportunityModel.findById(id, function (err, opportunities) {
-        if (err) {
-            res.send(err);
-            return; // instead of putting an else
-            //handle the error appropriately
-        }
-        res.send(opportunities);
-    });
 
 }
 
@@ -380,6 +428,25 @@ function getUndergrad(id, res) {
     });
 }
 
+/**
+ * Send a request to /application/:id, where "id" is the id of the application
+ * Returns the application object with that id
+ */
+app.get('/application/:id', function (req, res) {
+    let appId = req.params.id;
+    opportunityModel.find({}, function (err, docs) {
+        for (let i = 0; i < docs.length; i++) {
+            let opportunityObject = docs[i];
+            for (let j = 0; j < opportunityObject.applications.length; j++) {
+                if (opportunityObject.applications[j].id === appId) {
+                    res.send(opportunityObject.applications[j]);
+                    return;
+                }
+            }
+        }
+    });
+});
+
 app.post('/getApplications', function (req, res) {
 
     // function callbackHandler(err, results) {
@@ -398,6 +465,8 @@ app.post('/getApplications', function (req, res) {
     //function
 
     const labAdminId = req.body.id;
+    let opportunitiesArray = [];
+    let reformatted = {};
     labAdministratorModel.findById(labAdminId, function (err, labAdmin) {
         if (err) {
             res.send(err);
@@ -427,6 +496,7 @@ app.post('/getApplications', function (req, res) {
                         netIds.push(opportunityObject.applications[j].undergradNetId);
                     }
                     allApplications[opportunityObject.title] = applicationsArray;
+                    opportunitiesArray.push(opportunityObject);
                     applicationsArray = [];
                 }
                 undergradModel.find({
@@ -434,6 +504,7 @@ app.post('/getApplications', function (req, res) {
                         $in: netIds
                     }
                 }, function (err, studentInfoArray) {
+                    let count = 0;
                     for (let key in allApplications) {
                         if (allApplications.hasOwnProperty(key)) {
                             let currentApplication = allApplications[key];
@@ -449,11 +520,34 @@ app.post('/getApplications', function (req, res) {
                                 currentStudent.major = undergradInfo.major;
                                 currentStudent.gpa = undergradInfo.gpa;
                                 currentStudent.courses = undergradInfo.courses;
+                                currentStudent.skills = undergradInfo.skills;
 
                             }
+                            //reformat it to match:
+                            /**
+                             * {
+                                "titleOpp": {
+                                    "opportunity": {},
+                                    "applications": []
+                                },
+                                ....
+                            }
+
+                             from
+
+                             {
+                                "titleOpp": [].
+                                ...
+                             }
+                             */
+                            reformatted[key] = {
+                                "opportunity": opportunitiesArray[count],
+                                "applications": allApplications[key]
+                            };
+                            count++;
                         }
                     }
-                    res.send(allApplications);
+                    res.send(reformatted);
                 });
             });
         })
@@ -499,6 +593,13 @@ function gradYearToString(gradYear) {
     return "freshman";
 }
 
+//finds lab where lab admin = {adminNetId}, undefined if the id can't be fine in any lab
+function findLabWithAdmin(labs, adminNetId) {
+    return labs.filter(function (lab) {
+        return lab.labAdmins.includes(adminNetId);
+    })[0];
+}
+
 app.post('/getOpportunitiesListing', function (req, res) {
 
     // if (req.body.corsKey != corsKey) {
@@ -515,14 +616,73 @@ app.post('/getOpportunitiesListing', function (req, res) {
         "CHEM2090": ["CHEM2080"]
     };
     let undergradNetId = req.body.netId;
-    // var opportunitiesSuitable = [];
+    if (undergradNetId != undefined) {
+        //find the undergrad so we can get their info to determine the "preqreqs match" field
+        undergradModel.find({netId: undergradNetId}, function (err, undergrad) {
+            let undergrad1 = undergrad[0];
+            undergrad1.courses = undergrad1.courses.map(course => replaceAll(course, " ", ""));
+            debug(undergrad1);
+            debug("test");
+            //only get the ones that are currenlty open
+            opportunityModel.find({
+                opens: {
+                    $lte: new Date()
+                },
+                closes: {
+                    $gte: new Date()
+                }
+            }).lean().exec(function (err, opportunities) {
+                let labs = [];
+                //get all the labs so you have the info to update
+                labModel.find({}, function (labErr, labs2) {
+                    labs = labs2;
+                    for (let i = 0; i < opportunities.length; i++) {
+                        let prereqsMatch = false;
+                        opportunities[i].requiredClasses = opportunities[i].requiredClasses.map(course => replaceAll(course, " ", ""));
+                        // checks for gpa, major, and gradYear
+                        if (opportunities[i].minGPA <= undergrad1.gpa &&
+                            opportunities[i].requiredClasses.every(function (val) {
+                                //Check for synonymous courses, or courses where you can skip the prereqs
 
-    undergradModel.find({netId: undergradNetId}, function (err, undergrad) {
+                                if (!undergrad1.courses.includes(val)) {
+                                    let courseSubs = coursePrereqs[val];
+                                    if (courseSubs !== undefined) {
+                                        return undergrad1.courses.some(function (course) {
+                                            return courseSubs.includes(course);
+                                        });
+                                    }
+                                    return false;
+                                }
+                                return true;    //if it's contained in the undergrad1 courses straight off the bat
+                            }) &&
+                            opportunities[i].yearsAllowed.includes(gradYearToString(undergrad1.gradYear))) {
+                            prereqsMatch = true;
+                        }
+                        debug("h");
+                        let thisLab = findLabWithAdmin(labs, opportunities[i].creatorNetId);
+                        //prevent "undefined" values if there's some error
+                        if (thisLab === undefined) thisLab = {name: "", labPage: "", labDescription: ""};
+                        opportunities[i]["prereqsMatch"] = prereqsMatch;
+                        opportunities[i]["labName"] = thisLab.name;
+                        opportunities[i]["labPage"] = thisLab.labPage;
+                        opportunities[i]["labDescription"] = thisLab.labDescription;
+                        debug(opportunities[i]);
+                        debug(Object.getOwnPropertyNames(opportunities[i]));
 
-        let undergrad1 = undergrad[0];
-        undergrad1.courses = undergrad1.courses.map(course => course.replace(" ", ""));
-        debug(undergrad1);
-        debug("test");
+                    }
+                    res.send(opportunities);
+                });
+                for (let i = 0; i < opportunities.length; i++) {
+                    debug(opportunities[i].prereqsMatch);
+                }
+                if (err) {
+                    //handle the error appropriately
+                    res.send(err);
+                }
+            });
+        });
+    }
+    else {
         opportunityModel.find({
             opens: {
                 $lte: new Date()
@@ -532,42 +692,11 @@ app.post('/getOpportunitiesListing', function (req, res) {
             }
         }, function (err, opportunities) {
             for (let i = 0; i < opportunities.length; i++) {
-                let prereqsMatch = false;
-                opportunities[i].requiredClasses = opportunities[i].requiredClasses.map(course => course.replace(" ", ""));
-                // checks for gpa, major, and gradYear
-                if (opportunities[i].minGPA <= undergrad1.gpa &&
-                    opportunities[i].requiredClasses.every(function (val) {
-                        //Check for synonymous courses, or courses where you can skip the prereqs
-                        if (!undergrad1.courses.includes(val)) {
-                            let courseSubs = coursePrereqs[val];
-                            if (courseSubs != false) {
-                                return undergrad1.courses.some(function (course) {
-                                    return courseSubs.includes(course);
-                                });
-                            }
-                            return false;
-                        }
-                        return true;    //if it's contained in the undergrad1 courses straight off the bat
-                    }) &&
-                    opportunities[i].yearsAllowed.includes(gradYearToString(undergrad1.gradYear))) {
-                    prereqsMatch = true;
-                }
-
-                opportunities[i]["prereqsMatch"] = prereqsMatch;
-            }
-
-            for (let i = 0; i < opportunities.length; i++) {
-                debug(opportunities[i].prereqsMatch);
+                opportunities[i]["prereqsMatch"] = true;
             }
             res.send(opportunities);
-
-            if (err) {
-                res.send(err);
-                return;
-                //handle the error appropriately
-            }
-        });
-    });
+        })
+    }
 });
 
 
@@ -641,9 +770,6 @@ app.post('/createOpportunity', function (req, res) {
         closes: data.closes,
         areas: data.areas
     });
-
-    labModel.find();
-
     opportunity.save(function (err) {
         if (err) {
             res.status(500).send({"errors": err.errors});
@@ -682,33 +808,83 @@ app.post('/createUndergrad', function (req, res) {
 
 });
 
-///Endpoint for researchsignup
+// during lab admin signup creating new lab as well
 
+/* In the addLabAdmin endpoint, check to see if the req.body.labId field is null.
+ If it is null, then create a lab with labName, labDescription, and labUrl and save it to the database.
+ All three should be in req.body. If labId is not null, then just continue with the method as usual.
+ */
+function createLabAndAdmin(req, res) {
+    var data = req.body;
+
+    var lab = new labModel({
+        name: data.name,
+        labPage: data.labPage,
+        labDescription: data.labDescription,
+
+        // labAdmins and opportunities not needed during lab admin signup. so commented out.
+        // labAdmins: data.labAdmins,
+        // opportunities: data.opportunities
+    });
+
+    lab.save(function (err, labObject) {
+        if (err) {
+            res.status(500).send({"errors": err.errors});
+            console.log(err);
+        }
+
+        var labAdmin = new labAdministratorModel({
+            role: data.role,
+            labId: labObject._id,
+            netId: data.netId,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            verified: data.verified
+        });
+
+        labAdmin.save(function (err) {
+            if (err) {
+                res.status(500).send({"errors": err.errors});
+                console.log(err);
+            }
+        });
+    });
+}
+
+///Endpoint for lab admin signup
 app.post('/createLabAdmin', function (req, res) {
     //req is json containing the stuff that was sent if there was anything
     var data = req.body;
     debug(data);
 
-    var labAdmin = new labAdministratorModel({
-        role: data.role,
-        labId: data.labId,
-        netId: data.netId,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        verified: data.verified
+    // if labId is null then there is no existing lab and creating new lab
+    if (data.labId == null) {
+        createLabAndAdmin(req, res);
+        res.send("success!");
+    }
 
-    });
+    // while labAdmin is signing up he finds existing lab
+    else {
+        var labAdmin = new labAdministratorModel({
+            role: data.role,
+            labId: data.labId,
+            netId: data.netId,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            verified: data.verified
+        });
 
-    labAdmin.save(function (err) {
-        if (err) {
-            res.status(500).send({"errors": err.errors});
-            debug(err);
-        } //Handle this error however you see fit
-        else {
-            res.send("success!");
-        }
-        // Now the opportunity is saved in the commonApp collection on mlab!
-    });
+        labAdmin.save(function (err) {
+            if (err) {
+                res.status(500).send({"errors": err.errors});
+                console.log(err);
+            } //Handle this error however you see fit
+            else {
+                res.send("success!");
+            }
+            // Now the opportunity is saved in the commonApp collection on mlab!
+        });
+    }
 });
 
 app.post('/createLab', function (req, res) {
@@ -988,6 +1164,21 @@ function base64ArrayBuffer(arrayBuffer) {
     return base64
 }
 
+app.get('/resume/:id', function (req, res) {
+    let params = {
+        Bucket: "research-connect-student-files",
+        Key: req.params.id
+    };
+    s3.getObject(params, function (err, data) {
+        if (err) debug(err, err.stack); // an error occurred
+        else {
+            let baseString = base64ArrayBuffer(data.Body);
+            // return res.send('<embed width="100%" height="100%" src=data:application/pdf;base64,' + baseString + ' />');
+            return res.send(baseString);
+        }
+    });
+});
+
 app.post('/storeResume', function (req, res) {
     if (!req.files)
         return res.status(400).send('No files were uploaded.');
@@ -999,23 +1190,51 @@ app.post('/storeResume', function (req, res) {
         if (err) debug(err, err.stack); // an error occurred
         else {
             let baseString = base64ArrayBuffer(data.Body);
-            res.send('<embed width="100%" height="100%" src=data:application/pdf;base64,' + baseString + ' />');
+            // res.send('<embed width="100%" height="100%" src=data:application/pdf;base64,' + baseString + ' />');
         }
         // successful response
     });
     // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
     let resume = req.files.resume;
     //TODO change Key param to name of student plus date.now
-    // let uploadParams = {Bucket: "research-connect-student-files", Key: Date.now().toString(), Body: req.files.resume.data};
-    // debug("yay!");
-    // s3.upload (uploadParams, function (err, data) {
-    //     if (err) {
-    //         debug("Error", err);
-    //     } if (data) {
-    //         debug("Upload Success", data.Location);
-    //     }
-    // });
+    let uploadParams = {
+        Bucket: "research-connect-student-files",
+        Key: Date.now().toString(),
+        Body: req.files.resume.data
+    };
+    debug("yay!");
+    s3.upload(uploadParams, function (err, data) {
+        if (err) {
+            debug("Error", err);
+        }
+        if (data) {
+            debug("Upload Success", data.Location);
+            res.send("Success!");
+        }
+    });
 });
+
+
+app.post('/storeApplication', function (req, res) {
+    opportunityModel.findById(req.body.opportunityId, function (err, opportunity) {
+        if (err) {
+            return err;
+        }
+
+        var application = {
+            "undergradNetId": req.body.netId,
+            "status": "received",
+            "responses": req.body.responses,
+            "timeSubmitted": Date.now(),
+            "id": Date.now() + req.body.netId
+        };
+        opportunity.applications.push(application);
+        opportunity.save(function (err) {
+        });
+        res.send("success!");
+    });
+});
+
 
 /**End ENDPOINTS */
 
@@ -1038,58 +1257,3 @@ module.exports = app;
 app.listen(port, function () {
     debug(`api running on port ${port}`);
 });
-
-
-//Example code to create an instance of a model (in this case we're creating an opportunity)
-/**
- var opportunity = new opportunityModel({
-    title: "CellMate: A Responsive and Accurate Vision-based Appliance Identification System",
-    area: ["Electrical Engineering"],
-    labName: "Katz Lab",
-    labId: "1tq252r3ratrey4wt",
-    pi: "Randy Katz",
-    supervisor: "Kaifei Chen",
-    projectDescription: "Identifying and interacting with smart appliances has been challenging in the burgeoning smart building era. Existing identification methods require either cumbersome query statements or the deployment of additional infrastructure. There is no platform that abstracts sophisticated computer vision technologies to provide an easy visual identification interface, which is the most intuitive way for a human. CellMate is a new kind of visual appliance identification system that leverages advantages of different computer vision technologies and organizes them to optimize single image queries for fast response, high accuracy, and scalability.",
-    undergradTasks: "Undergraduate students will learn the state-of-art of vision-based localization algorithms and implementations, design and implement our research prototypes, collect data, discuss with graduate students to tackle problems and invent algorithms, and contribute to research papers. Students will be given specific engineering tasks, and are expected to meet with the research supervisor once or twice a week.",  //what the undergrad would be doing
-    opens: new Date(2017, 8, 5, 0, 0, 0, 0),
-    closes: new Date(2018, 3, 9, 0, 0, 0, 0),  //null if rolling
-    startDate: "Summer 2018", //null if start asap, string b/c it will prob be something like Fall 2018
-    minHours: 3,
-    maxHours: 9,
-    // skills: [String],
-    qualifications: "C++ (required), Android programing (required), Algorithms (required), Operating System (required), Networking (required), Computer Vision (desirable), Machine Learning (desirable)",
-    minGPA: 0,
-    requiredClasses: ["ECE 2300"],
-    questions: ["What experience do you have in this field?", "Why do you want to work in my lab?"],
-    yearsAllowed: ["sophomore", "junior"],
-    applications: 50,   //number of people who've submitted
-    spots: 1   //number of people they're willing to take
-});
- */
-
-// Example code for saving a model instance. Save the new model instance, passing a callback. THIS IS ASYNCHRONOUS!!!
-/**
- opportunity.save(function (err) {
-    if (err) {
-        debug(err);
-    } //Handle this error however you see fit
-
-    // Now the opportunity is saved in the Opportunities collection on mlab!
-});
- */
-
-
-//Example code for searching the database:
-/**
- opportunityModel.find({}, function (err, opportunities) {
-   debug(opportunities);
-   //has to be double quotes for the search criteria ("andrew" in this case)!
-   // 'students' contains the list of students that match the criteria.
-   //since we only specify firstName and year, that's all the info about the students we'll get back
-   if (err) {
-       debug(err);
-       //handle the error appropriately
-   }
-   // debug(students);
-});
- */
