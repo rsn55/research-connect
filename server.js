@@ -102,13 +102,13 @@ var labRouter = require('./api/lab.js');
 var labAdminRouter = require('./api/Labadministrator.js');
 var labRouter = require('./api/lab.js');
 var OpportunityRouter = require('./api/opportunity.js');
-var undergradeRouter = require('./api/Undergrads.js');
+var undergradRouter = require('./api/Undergrads.js');
 
 app.use('/api', router);
 app.use('/lab', labRouter);
 app.use('/abAdministrator',labAdminRouter);
 app.use('/opportunity',OpportunityRouter);
-app.use('',undergradRoute);/**/
+app.use('/undergrad',undergradRouter);/**/
 
 
 /*******************************/
@@ -1358,7 +1358,7 @@ app.use(function (req, res, next) {
 module.exports = app;
 
 //starts the server and listens for requests
-<<<<<<< HEAD
+
 app.listen(port, function (){
     debug(`api running on port ${port}`)
 });
@@ -1415,8 +1415,8 @@ app.listen(port, function (){
    }
    // debug(students);
    */
-=======
+
+
+
 app.listen(port, function () {
     debug(`api running on port ${port}`);
-});
->>>>>>> 52f7c22cc2705775333cf7d8caebc7d07d66d6c9
