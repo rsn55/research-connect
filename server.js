@@ -404,7 +404,7 @@ app.post('/getLabAdmin', function (req, res) {
     res.send(response);
 });
 
-function getLabAdmin(id, res) {
+function getLabAdmin(id) {
     labAdministratorModel.findById(id, function (err, labAdmin) {
         if (err) {
             return err;
@@ -885,13 +885,41 @@ function createLabAndAdmin(req, res) {
 // var lastSent1 = new Date();
 // // if (data.notifications === -1)
 
-function sendUpdateLabAdmin(labAdminId) {
+function sendUpdatesLabAdmins() {
+    labAdministratorModel.find({}, function (labErr, labAdmins) {
+
+        for (var i = 0; i <= labAdmins.length; i++) {
+            sendScheduledUpdate(labAdmins[i]);
+        }
+    });
+}
+
+function sendScheduledUpdate(labAdmin) {
     // {/*<option value="-1">Never</option>*/}
     // {/*<option value="0">Every Time An Application is Submitted</option>*/}
     // {/*<option value="7">Weekly Update</option>*/}
     // {/*<option value="30">Monthly Update</option>*/}
 
-    // var labAdmin =
+    var notif = labAdmin.notifications;
+    var prevSend = labAdmin.lastSent;
+    var nextSend;
+
+    if (notif !== -1) {
+
+        if (notif === 7 || notif === 30) {
+            nextSend = new Date(prevSend.getTime() + notif * 86400000);
+        }
+
+        else if (notif === 0) {
+            nextSend = new Date();
+        }
+
+        //today's date >= nextSend : send email
+
+        if(nextSend.getTime() <= new Date()) {
+
+        }
+    }
 }
 
 ///Endpoint for lab admin signup
