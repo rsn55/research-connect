@@ -151,15 +151,17 @@ const labSchema = new Schema({
 });
 let labModel = mongoose.model('Labs', labSchema, 'Labs'); //a mongoose model = a Collection on mlab/mongodb
 
-
 const labAdministratorSchema = new Schema({
     role: {type: String, enum: ["pi", "postdoc", "grad", "undergrad"], required: true},
     labId: {type: Schema.Types.ObjectId, required: true, ref: "Labs"},
     netId: {type: String, required: true},
     firstName: {type: String, required: true},
     lastName: {type: String, required: true},
+    notifications: {type: Number, required: true},
+    lastSent: {type: Date, default: new Date()},
     verified: {type: Boolean, default: false}
 });
+
 let labAdministratorModel = mongoose.model('LabAdministrators', labAdministratorSchema, 'LabAdministrators');
 
 const opportunitySchema = new Schema({
@@ -205,6 +207,7 @@ const opportunitySchema = new Schema({
     labDescription: {type: String, required: false},
     labName: {type: String, required: false}
 });
+
 opportunitySchema.pre('validate', function (next) {
     if (this.maxHours < this.minHours) {
         next(new Error('Min hours must be greater than or equal to max hours.'));
@@ -878,6 +881,19 @@ function createLabAndAdmin(req, res) {
     });
 }
 
+// var notif = 0;
+// var lastSent1 = new Date();
+// // if (data.notifications === -1)
+
+function sendUpdateLabAdmin(labAdminId) {
+    // {/*<option value="-1">Never</option>*/}
+    // {/*<option value="0">Every Time An Application is Submitted</option>*/}
+    // {/*<option value="7">Weekly Update</option>*/}
+    // {/*<option value="30">Monthly Update</option>*/}
+
+    // var labAdmin =
+}
+
 ///Endpoint for lab admin signup
 app.post('/createLabAdmin', function (req, res) {
     //req is json containing the stuff that was sent if there was anything
@@ -892,12 +908,14 @@ app.post('/createLabAdmin', function (req, res) {
 
     // while labAdmin is signing up he finds existing lab
     else {
+
         var labAdmin = new labAdministratorModel({
             role: data.role,
             labId: data.labId,
             netId: data.netId,
             firstName: data.firstName,
             lastName: data.lastName,
+            notifications: data.notifications,
             verified: data.verified
         });
 
