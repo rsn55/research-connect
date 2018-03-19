@@ -412,8 +412,8 @@ function getLabAdmin(id, res) {
     });
 }
 
-app.get('/undergrad/:id', function (req, res) {
-    undergradModel.findById(req.params.id, function (err, undergrad) {
+app.get('/undergrad/:netId', function (req, res) {
+    undergradModel.find({netId: req.params.netId}, function (err, undergrad) {
         if (err) {
             return err;
         }
